@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #09090b;
+  --bg-card: #18181b;
+  --bg-hover: #27272a;
+  --text: #fafafa;
+  --text-muted: #a1a1aa;
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --accent-glow: rgba(16, 185, 129, 0.12);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --radius: 14px;
+  --radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  --color-bg: var(--bg);
+  --color-bg-card: var(--bg-card);
+  --color-bg-hover: var(--bg-hover);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-glow: var(--accent-glow);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --font-sans: var(--font-inter);
+
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-slide-up: slideUp 0.4s ease-out forwards;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.05); opacity: 0.15; }
+    100% { transform: scale(1); opacity: 0.4; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: white;
+  }
+}
+
+/* Verified badge checkmark */
+.badge-verified {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+/* Avatar ring animation */
+.avatar-ring {
+  animation: pulse-ring 3s ease-in-out infinite;
+}
+
+/* Store badge colors */
+.store-shopee { color: #ee4d2d; background: rgba(238, 77, 45, 0.1); }
+.store-amazon { color: #ff9900; background: rgba(255, 153, 0, 0.1); }
+.store-mercadolivre { color: #ffe600; background: rgba(255, 230, 0, 0.1); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
