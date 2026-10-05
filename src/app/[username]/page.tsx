@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile, Social, Theme, Section, Meta } from "@/types/database";
 import ProfilePage from "./ProfilePage";
 
 export const dynamic = "force-dynamic";

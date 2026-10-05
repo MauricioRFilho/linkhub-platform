@@ -4,7 +4,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { Link2, Eye, Palette, Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { data, loading } = useProfile();
+  const { data, loading, error } = useProfile();
 
   if (loading) {
     return (
@@ -14,7 +14,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!data) return null;
+  if (!data) return error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null;
 
   const { profile, sections, theme } = data;
   const activeLinks = sections.filter((s) => s.active).length;

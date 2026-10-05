@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:unit": "node --experimental-strip-types --test --test-isolation=none src/lib/utils/auth-redirect.test.ts src/lib/utils/public-url.test.ts src/lib/utils/username.test.ts",
+    "test:db": "node scripts/validate-migration.mjs",
+    "test": "npm run test:unit && npm run test:db"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

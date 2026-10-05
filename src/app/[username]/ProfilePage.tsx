@@ -8,7 +8,8 @@ import LinkItem from "@/components/profile/LinkItem";
 import ProductItem from "@/components/profile/ProductItem";
 import SectionHeader from "@/components/profile/SectionHeader";
 import Footer from "@/components/profile/Footer";
-import AdBanner from "@/components/profile/AdBanner";
+import type { CSSProperties } from "react";
+import { isSafeProfileLink } from "@/lib/utils/public-url";
 
 interface ProfilePageProps {
   profile: Profile;
@@ -32,6 +33,7 @@ export default function ProfilePage({
   function renderSection(section: Section, index: number) {
     switch (section.type) {
       case "link":
+        if (!section.url || !isSafeProfileLink(section.url, true)) return null;
         return (
           <LinkItem
             key={section.id}
@@ -45,13 +47,14 @@ export default function ProfilePage({
           />
         );
       case "product":
+        if (!section.url || !isSafeProfileLink(section.url)) return null;
         return (
           <ProductItem
             key={section.id}
             title={section.title}
             subtitle={section.subtitle}
             url={section.url!}
-            store={section.store!}
+            store={section.store || "Destaque"}
             thumbnail={section.thumbnail_url}
             index={index}
             accentColor={accentColor}
@@ -70,15 +73,18 @@ export default function ProfilePage({
     }
   }
 
-  const accentStyle = { "--accent": accentColor } as React.CSSProperties;
+  const accentStyle = { "--accent": accentColor } as CSSProperties;
 
   return (
     <main
-      className="flex flex-col items-center min-h-screen px-4 py-14 md:py-20 pb-24"
+      className="public-profile flex flex-col items-center min-h-screen px-4 py-14 md:py-20 pb-24"
+      data-public-profile=""
+      data-style={theme.style}
+      data-template={theme.template}
       style={accentStyle}
     >
       <Avatar
-        src={profile.avatar_url || "/avatar.jpg"}
+        src={profile.avatar_url}
         name={profile.display_name}
         verified={profile.verified}
         accentColor={accentColor}
@@ -92,8 +98,6 @@ export default function ProfilePage({
 
       <Footer name={profile.display_name} />
 
-      {/* AdSense banner — always visible on public profiles */}
-      <AdBanner />
     </main>
   );
 }

@@ -48,13 +48,17 @@ export function useProfile(): UseProfileReturn {
         ]);
 
       if (profileRes.error) throw profileRes.error;
+      if (socialsRes.error) throw socialsRes.error;
+      if (themeRes.error || !themeRes.data) throw themeRes.error ?? new Error("Tema do perfil não encontrado");
+      if (sectionsRes.error) throw sectionsRes.error;
+      if (metaRes.error || !metaRes.data) throw metaRes.error ?? new Error("Configuração de SEO não encontrada");
 
       setData({
         profile: profileRes.data,
-        socials: socialsRes.data ?? [],
-        theme: themeRes.data!,
-        sections: sectionsRes.data ?? [],
-        meta: metaRes.data!,
+        socials: socialsRes.data,
+        theme: themeRes.data,
+        sections: sectionsRes.data,
+        meta: metaRes.data,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar perfil");
@@ -64,7 +68,8 @@ export function useProfile(): UseProfileReturn {
   }, [supabase]);
 
   useEffect(() => {
-    fetchProfile();
+    const timer = window.setTimeout(() => { void fetchProfile(); }, 0);
+    return () => window.clearTimeout(timer);
   }, [fetchProfile]);
 
   return { data, loading, error, refetch: fetchProfile };

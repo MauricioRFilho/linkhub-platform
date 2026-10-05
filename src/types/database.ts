@@ -73,7 +73,7 @@ export type Database = {
           profile_id: string;
           accent_color: string;
           style: "dark" | "light";
-          template: "classic" | "minimal" | "bold" | "neon";
+          template: "classic" | "minimal" | "bold" | "neon" | "editorial";
           custom_css: string | null;
         };
         Insert: {
@@ -81,13 +81,13 @@ export type Database = {
           profile_id: string;
           accent_color?: string;
           style?: "dark" | "light";
-          template?: "classic" | "minimal" | "bold" | "neon";
+          template?: "classic" | "minimal" | "bold" | "neon" | "editorial";
           custom_css?: string | null;
         };
         Update: {
           accent_color?: string;
           style?: "dark" | "light";
-          template?: "classic" | "minimal" | "bold" | "neon";
+          template?: "classic" | "minimal" | "bold" | "neon" | "editorial";
           custom_css?: string | null;
         };
         Relationships: [];

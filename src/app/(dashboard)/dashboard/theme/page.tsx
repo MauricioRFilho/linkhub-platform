@@ -17,30 +17,23 @@ const PALETTE = [
 ];
 
 const TEMPLATES: { id: ThemeTemplate; label: string; desc: string }[] = [
-  { id: "classic", label: "Classic", desc: "Design equilibrado com cartões elegantes e avatar em destaque." },
-  { id: "minimal", label: "Minimal", desc: "Tipografia limpa, linhas finas e foco total no conteúdo." },
-  { id: "bold", label: "Bold", desc: "Bordas marcadas, alto contraste e elementos visuais de impacto." },
-  { id: "neon", label: "Neon", desc: "Glow pulsante e gradientes futuristas com estética cyberpunk." },
+  { id: "classic", label: "Classic", desc: "Cartões equilibrados e identidade visual versátil." },
+  { id: "minimal", label: "Minimal", desc: "Linhas discretas e foco no conteúdo." },
+  { id: "bold", label: "Bold", desc: "Bordas fortes e títulos de alto contraste." },
+  { id: "neon", label: "Neon", desc: "Destaques luminosos e visual contemporâneo." },
+  { id: "editorial", label: "Editorial", desc: "Tipografia serifada e apresentação de portfólio." },
 ];
 
 export default function ThemeCustomizerPage() {
-  const { data, loading, refetch } = useProfile();
+  const { data, loading, error, refetch } = useProfile();
   const supabase = createClient();
 
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [accentColor, setAccentColor] = useState<string>("#10b981");
-  const [template, setTemplate] = useState<ThemeTemplate>("classic");
-  const [style, setStyle] = useState<ThemeStyle>("dark");
-  const [initialized, setInitialized] = useState(false);
-
-  // Sync state once data loads
-  if (data && !initialized) {
-    setAccentColor(data.theme.accent_color);
-    setTemplate(data.theme.template);
-    setStyle(data.theme.style);
-    setInitialized(true);
-  }
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [accentColor, setAccentColor] = useState<string | null>(null);
+  const [template, setTemplate] = useState<ThemeTemplate | null>(null);
+  const [style, setStyle] = useState<ThemeStyle | null>(null);
 
   if (loading) {
     return (
@@ -50,19 +43,24 @@ export default function ThemeCustomizerPage() {
     );
   }
 
-  if (!data) return null;
+  if (!data) return error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null;
+
+  const selectedAccent = accentColor ?? data.theme.accent_color;
+  const selectedTemplate = template ?? data.theme.template;
+  const selectedStyle = style ?? data.theme.style;
 
   async function handleSave() {
     setSaving(true);
     setSuccess(false);
+    setSaveError(null);
 
     try {
       const { error } = await supabase
         .from("themes")
         .update({
-          accent_color: accentColor,
-          template: template,
-          style: style,
+          accent_color: selectedAccent,
+          template: selectedTemplate,
+          style: selectedStyle,
         })
         .eq("profile_id", data!.profile.id);
 
@@ -72,7 +70,7 @@ export default function ThemeCustomizerPage() {
       await refetch();
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao salvar tema");
+      setSaveError(err instanceof Error ? err.message : "Erro ao salvar tema");
     } finally {
       setSaving(false);
     }
@@ -116,7 +114,7 @@ export default function ThemeCustomizerPage() {
                   type="button"
                   onClick={() => setTemplate(tmpl.id)}
                   className={`p-4 rounded-xl text-left border transition-all ${
-                    template === tmpl.id
+                    selectedTemplate === tmpl.id
                       ? "bg-zinc-900 border-emerald-500 ring-1 ring-emerald-500/50"
                       : "bg-zinc-950/60 border-zinc-800 hover:border-zinc-700"
                   }`}
@@ -138,14 +136,14 @@ export default function ThemeCustomizerPage() {
                   type="button"
                   onClick={() => setAccentColor(c.hex)}
                   className={`w-9 h-9 rounded-full transition-transform flex items-center justify-center ${
-                    accentColor.toLowerCase() === c.hex.toLowerCase()
+                    selectedAccent.toLowerCase() === c.hex.toLowerCase()
                       ? "scale-110 ring-2 ring-white ring-offset-2 ring-offset-zinc-950"
                       : "hover:scale-105"
                   }`}
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
                 >
-                  {accentColor.toLowerCase() === c.hex.toLowerCase() && (
+                  {selectedAccent.toLowerCase() === c.hex.toLowerCase() && (
                     <Check className="w-4 h-4 text-white drop-shadow" />
                   )}
                 </button>
@@ -154,12 +152,12 @@ export default function ThemeCustomizerPage() {
               <div className="flex items-center gap-2 ml-2 pl-3 border-l border-zinc-800">
                 <input
                   type="color"
-                  value={accentColor}
+                  value={selectedAccent}
                   onChange={(e) => setAccentColor(e.target.value)}
                   className="w-8 h-8 rounded-lg bg-transparent cursor-pointer border-0"
                 />
                 <span className="text-xs font-mono text-zinc-400 uppercase">
-                  {accentColor}
+                  {selectedAccent}
                 </span>
               </div>
             </div>
@@ -173,7 +171,7 @@ export default function ThemeCustomizerPage() {
                 type="button"
                 onClick={() => setStyle("dark")}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
-                  style === "dark"
+                  selectedStyle === "dark"
                     ? "bg-zinc-900 border-emerald-500 text-white"
                     : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white"
                 }`}
@@ -185,7 +183,7 @@ export default function ThemeCustomizerPage() {
                 type="button"
                 onClick={() => setStyle("light")}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
-                  style === "light"
+                  selectedStyle === "light"
                     ? "bg-zinc-900 border-emerald-500 text-white"
                     : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white"
                 }`}
@@ -204,19 +202,21 @@ export default function ThemeCustomizerPage() {
           </p>
 
           <div
-            className={`w-full max-w-[280px] rounded-3xl p-5 border flex flex-col items-center shadow-xl transition-all ${
-              style === "dark" ? "bg-zinc-950 border-zinc-800 text-white" : "bg-white border-zinc-200 text-zinc-900"
-            }`}
+            data-public-profile=""
+            data-style={selectedStyle}
+            data-template={selectedTemplate}
+            className="theme-preview public-profile w-full max-w-[280px] rounded-3xl p-5 border flex flex-col items-center shadow-xl transition-all"
+            style={{ "--accent": selectedAccent } as React.CSSProperties}
           >
             {/* Avatar mock */}
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg mb-3 shadow-md"
-              style={{ backgroundColor: `${accentColor}20`, color: accentColor, border: `2px solid ${accentColor}` }}
+              className="public-profile-avatar w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg mb-3 shadow-md"
+              style={{ backgroundColor: `${selectedAccent}20`, color: selectedAccent, border: `2px solid ${selectedAccent}` }}
             >
               {data.profile.display_name.charAt(0)}
             </div>
 
-            <p className="font-semibold text-sm">{data.profile.display_name}</p>
+            <p className="public-profile-title font-semibold text-sm">{data.profile.display_name}</p>
             <p className="text-[11px] text-zinc-400 text-center mt-1 max-w-[200px] line-clamp-2">
               {data.profile.bio || "Seu link na bio em minutos"}
             </p>
@@ -224,28 +224,29 @@ export default function ThemeCustomizerPage() {
             {/* Mock Link Button */}
             <div className="w-full mt-5 space-y-2">
               <div
-                className="w-full py-2.5 px-3 rounded-xl text-center text-xs font-medium transition-all shadow-sm"
+                className="public-profile-link-card w-full py-2.5 px-3 rounded-xl text-center text-xs font-medium transition-all shadow-sm"
                 style={{
-                  backgroundColor: `${accentColor}15`,
-                  border: `1px solid ${accentColor}40`,
-                  color: accentColor,
+                  backgroundColor: `${selectedAccent}15`,
+                  border: `1px solid ${selectedAccent}40`,
+                  color: selectedAccent,
                 }}
               >
                 Meu Portfólio
               </div>
               <div
-                className="w-full py-2.5 px-3 rounded-xl text-center text-xs font-medium bg-zinc-800/40 border border-zinc-700/40 text-zinc-400"
+                className="theme-preview-secondary-link public-profile-link-card w-full py-2.5 px-3 rounded-xl text-center text-xs font-medium"
               >
                 Canal no YouTube
               </div>
             </div>
 
             <div className="mt-6 text-[9px] text-zinc-500">
-              Template: <span className="capitalize">{template}</span>
+              Template: <span className="capitalize">{selectedTemplate}</span>
             </div>
           </div>
         </div>
       </div>
+      {saveError && <p role="alert" className="mt-4 text-sm text-red-400">{saveError}</p>}
     </div>
   );
 }

@@ -37,3 +37,11 @@ next-env.d.ts
 
 !.env.local.example
 !.env.example
+
+# local agent files
+/.agent/
+/agents/
+
+# Supabase local state
+/supabase/.temp/
+/supabase/.branches/

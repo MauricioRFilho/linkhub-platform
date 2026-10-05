@@ -13,52 +13,63 @@ import { User, AtSign, Loader2, Check, X } from "lucide-react";
 export default function RegisterPage() {
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
-  const [usernameError, setUsernameError] = useState<string | null>(null);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
-  const [checking, setChecking] = useState(false);
+  const [serverUsernameError, setServerUsernameError] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<{ username: string; available: boolean } | null>(null);
+  const [availabilityError, setAvailabilityError] = useState<{ username: string; message: string } | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const supabase = createClient();
   const router = useRouter();
 
-  // Debounced username availability check
+  const normalizedUsername = normalizeUsername(username);
+  const validationError = normalizedUsername.length >= 3
+    ? validateUsername(normalizedUsername)
+    : null;
+  const usernameAvailable = validationError
+    ? false
+    : availability?.username === normalizedUsername
+      ? availability.available
+      : null;
+  const checking = checkingUsername === normalizedUsername;
+  const usernameError = serverUsernameError || validationError ||
+    (availabilityError?.username === normalizedUsername ? availabilityError.message : null);
+
+  // Debounced availability check; the result is keyed to the current value to avoid stale responses.
   useEffect(() => {
-    const normalized = normalizeUsername(username);
-    if (!normalized || normalized.length < 3) {
-      setUsernameAvailable(null);
-      setUsernameError(null);
-      return;
-    }
-
-    const validationError = validateUsername(normalized);
-    if (validationError) {
-      setUsernameError(validationError);
-      setUsernameAvailable(false);
-      return;
-    }
-
-    setUsernameError(null);
-    setChecking(true);
+    if (normalizedUsername.length < 3 || validationError) return;
+    let current = true;
 
     const timer = setTimeout(async () => {
-      const { data } = await supabase
+      setCheckingUsername(normalizedUsername);
+      try {
+        const { data: existing, error: profileError } = await supabase
         .from("profiles")
         .select("username")
-        .eq("username", normalized)
-        .single();
+        .eq("username", normalizedUsername)
+        .maybeSingle();
 
-      const { data: reserved } = await supabase
+        const { data: reserved, error: reservedError } = await supabase
         .from("reserved_usernames")
         .select("username")
-        .eq("username", normalized)
-        .single();
+        .eq("username", normalizedUsername)
+        .maybeSingle();
 
-      setUsernameAvailable(!data && !reserved);
-      setChecking(false);
-    }, 500);
+        if (profileError) throw profileError;
+        if (reservedError) throw reservedError;
+        if (current) {
+          setAvailability({ username: normalizedUsername, available: !existing && !reserved });
+          setAvailabilityError(null);
+        }
+      } catch {
+        if (current) setAvailabilityError({ username: normalizedUsername, message: "Não foi possível verificar agora. Tente novamente." });
+      } finally {
+        if (current) setCheckingUsername((value) => value === normalizedUsername ? null : value);
+      }
+    }, 450);
 
-    return () => clearTimeout(timer);
-  }, [username, supabase]);
+    return () => { current = false; clearTimeout(timer); };
+  }, [normalizedUsername, supabase, validationError]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,38 +81,20 @@ export default function RegisterPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Não autenticado");
 
-      const normalized = normalizeUsername(username);
+      // The database trigger creates theme and meta in the same transaction.
+      const { error } = await supabase.from("profiles").insert({
+        id: user.id,
+        username: normalizedUsername,
+        display_name: displayName.trim(),
+        bio: null,
+        avatar_url: null,
+      });
 
-      // Create profile, theme, and meta in parallel
-      const [profileRes, themeRes, metaRes] = await Promise.all([
-        supabase.from("profiles").insert({
-          id: user.id,
-          username: normalized,
-          display_name: displayName.trim(),
-          bio: null,
-          avatar_url: null,
-        }),
-        supabase.from("themes").insert({
-          profile_id: user.id,
-          accent_color: "#10b981",
-          style: "dark" as const,
-          template: "classic" as const,
-        }),
-        supabase.from("meta").insert({
-          profile_id: user.id,
-          title: `${displayName.trim()} | Links`,
-          description: `Links de ${displayName.trim()}`,
-          lang: "pt-BR",
-        }),
-      ]);
-
-      if (profileRes.error) throw profileRes.error;
-      if (themeRes.error) throw themeRes.error;
-      if (metaRes.error) throw metaRes.error;
+      if (error) throw error;
 
       router.push("/dashboard");
     } catch (err) {
-      setUsernameError(
+      setServerUsernameError(
         err instanceof Error ? err.message : "Erro ao criar perfil"
       );
       setSaving(false);
@@ -155,7 +148,7 @@ export default function RegisterPage() {
                   id="username"
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                  onChange={(e) => { setUsername(e.target.value.toLowerCase()); setServerUsernameError(null); }}
                   placeholder="seuusername"
                   required
                   maxLength={30}
@@ -176,7 +169,7 @@ export default function RegisterPage() {
               {/* Preview URL */}
               {username.length >= 3 && !usernameError && (
                 <p className="mt-1.5 text-xs text-zinc-500">
-                  Seu link: <span className="text-emerald-400">links.codecadence.com.br/@{normalizeUsername(username)}</span>
+                  Seu endereço: <span className="text-emerald-400">@{normalizeUsername(username)}</span>
                 </p>
               )}
 

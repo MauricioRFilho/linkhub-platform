@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { safeImageSource } from "@/lib/utils/public-url";
 
 interface LinkItemProps {
   title: string;
@@ -24,7 +25,8 @@ export default function LinkItem({
   index,
   accentColor,
 }: LinkItemProps) {
-  const isExternal = url.startsWith("http") || url.startsWith("mailto:");
+  const isExternal = /^(https?:|mailto:|tel:)/i.test(url);
+  const imageSource = safeImageSource(thumbnail);
 
   return (
     <motion.a
@@ -34,27 +36,19 @@ export default function LinkItem({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.1 + index * 0.05 }}
-      className="group relative flex items-center w-full px-4 py-3.5 rounded-2xl bg-bg-card border border-border transition-all duration-200 cursor-pointer"
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.borderColor = `${accentColor}30`;
-        el.style.backgroundColor = "#27272a";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.borderColor = "";
-        el.style.backgroundColor = "";
-      }}
+      className="public-profile-link-card group relative flex items-center w-full px-4 py-3.5 rounded-2xl bg-bg-card border border-border transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      style={{ "--link-accent": accentColor } as React.CSSProperties}
     >
       {/* Thumbnail */}
-      {thumbnail && (
+      {imageSource && (
         <div className="relative w-10 h-10 rounded-xl overflow-hidden mr-3.5 shrink-0">
           <Image
-            src={thumbnail}
+            src={imageSource}
             alt={title}
             fill
             className="object-cover"
             sizes="40px"
+            unoptimized
           />
         </div>
       )}
@@ -68,7 +62,7 @@ export default function LinkItem({
 
       {/* Text */}
       <div className="flex-1 min-w-0">
-        <span className="text-sm font-medium text-text block truncate group-hover:text-white transition-colors">
+        <span className="public-profile-link-title text-sm font-medium text-text block truncate transition-colors">
           {title}
         </span>
         {subtitle && (

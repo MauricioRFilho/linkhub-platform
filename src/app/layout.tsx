@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | LinkHub",
   },
   description:
-    "Crie sua página de links personalizada com suporte a múltiplos temas, analytics e monetização.",
+    "Crie uma página pública para reunir links, apresentar seu portfólio ou divulgar sua empresa, com identidade visual personalizável.",
   keywords: ["links", "link in bio", "portfólio", "codecadence", "linkhub"],
   authors: [{ name: "Code Cadence", url: "https://codecadence.com.br" }],
   openGraph: {

@@ -26,16 +26,11 @@ INSERT INTO socials (profile_id, platform, url, sort_order) VALUES
   ('YOUR_USER_UUID', 'instagram', 'https://instagram.com/mauriciootk/', 2),
   ('YOUR_USER_UUID', 'strava', 'https://strava.com/athletes/65971729', 3);
 
-INSERT INTO themes (profile_id, accent_color, style, template)
-VALUES ('YOUR_USER_UUID', '#10b981', 'dark', 'classic');
-
-INSERT INTO meta (profile_id, title, description, lang)
-VALUES (
-  'YOUR_USER_UUID',
-  'Mauricio Rodrigues | Links',
-  'Links oficiais de Mauricio Rodrigues — Engenheiro Fullstack Sênior & Atleta de Endurance.',
-  'pt-BR'
-);
+-- Theme and meta were created automatically by the profile trigger.
+UPDATE meta SET title = 'Mauricio Rodrigues | Links',
+  description = 'Links oficiais de Mauricio Rodrigues — Engenheiro Fullstack Sênior & Atleta de Endurance.',
+  lang = 'pt-BR'
+WHERE profile_id = 'YOUR_USER_UUID';
 
 INSERT INTO sections (profile_id, type, title, subtitle, url, emoji, store, sort_order, active) VALUES
   ('YOUR_USER_UUID', 'link', 'Meu GitHub', 'Projetos open source & código', 'https://github.com/MauricioRFilho', '🧑‍💻', null, 0, true),

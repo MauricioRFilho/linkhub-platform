@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { Social } from "@/types/database";
+import { isSafeProfileLink } from "@/lib/utils/public-url";
 
 function GithubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -92,7 +93,7 @@ export default function SocialBar({ socials, accentColor }: SocialBarProps) {
       transition={{ duration: 0.4, delay: 0.25 }}
       className="flex items-center gap-2.5 mt-5"
     >
-      {socials.map((s) => {
+      {socials.filter((social) => isSafeProfileLink(social.url)).map((s) => {
         const Icon = ICON_MAP[s.platform.toLowerCase()] || GlobeIcon;
 
         return (
@@ -102,7 +103,7 @@ export default function SocialBar({ socials, accentColor }: SocialBarProps) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={s.platform}
-            className="w-10 h-10 rounded-full bg-zinc-900/60 border border-zinc-800 flex items-center justify-center text-zinc-400 transition-all duration-200"
+            className="public-profile-social w-10 h-10 rounded-full bg-zinc-900/60 border border-zinc-800 flex items-center justify-center text-zinc-400 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             onMouseEnter={(e) => {
               const el = e.currentTarget;
               el.style.borderColor = `${accentColor}60`;

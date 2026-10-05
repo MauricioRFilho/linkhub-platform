@@ -3,9 +3,10 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { safeImageSource } from "@/lib/utils/public-url";
 
 interface AvatarProps {
-  src: string;
+  src: string | null;
   name: string;
   verified: boolean;
   accentColor: string;
@@ -13,12 +14,13 @@ interface AvatarProps {
 
 /** Circular avatar with animated ring and optional verified badge */
 export default function Avatar({ src, name, verified, accentColor }: AvatarProps) {
+  const imageSource = safeImageSource(src);
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="relative w-24 h-24"
+      className="public-profile-avatar relative w-24 h-24"
     >
       {/* Animated ring — color driven by theme accent */}
       <div
@@ -30,14 +32,13 @@ export default function Avatar({ src, name, verified, accentColor }: AvatarProps
 
       {/* Avatar image */}
       <div className="relative w-24 h-24 rounded-full overflow-hidden ring-2 ring-border ring-offset-2 ring-offset-bg">
-        <Image
-          src={src}
-          alt={name}
-          fill
-          className="object-cover"
-          sizes="96px"
-          priority
-        />
+        {imageSource ? (
+          <Image src={imageSource} alt={name} fill className="object-cover" sizes="96px" priority unoptimized />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-bg-card text-3xl font-semibold text-accent" aria-label={`Avatar de ${name}`}>
+            {name.trim().charAt(0).toUpperCase() || "?"}
+          </div>
+        )}
       </div>
 
       {/* Verified badge */}
