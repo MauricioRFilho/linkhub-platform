@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import ProfilePage from "./ProfilePage";
+import { buildTree } from "@/lib/blocks/tree";
+import { scheduleStatus } from "@/lib/blocks/schedule";
 
 export const dynamic = "force-dynamic";
 
@@ -48,11 +50,15 @@ async function getProfileData(username: string) {
       .single(),
   ]);
 
+  // RLS already hides unpublished blocks; filtering again keeps the page
+  // correct even if this query ever runs with elevated credentials.
+  const published = (sectionsRes.data ?? []).filter((s) => scheduleStatus(s) === "live");
+
   return {
     profile,
     socials: socialsRes.data ?? [],
     theme: themeRes.data!,
-    sections: sectionsRes.data ?? [],
+    sections: buildTree(published),
     meta: metaRes.data!,
   };
 }
@@ -64,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return { title: "Perfil não encontrado" };
 
   const { profile, meta } = data;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "links.codecadence.com.br";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "links.cadencecode.com.br";
 
   return {
     metadataBase: new URL(`https://${baseUrl}`),

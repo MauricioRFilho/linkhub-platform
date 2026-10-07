@@ -9,11 +9,13 @@ import {
   LayoutDashboard,
   LogOut,
   ExternalLink,
+  BarChart3,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Visão Geral", icon: LayoutDashboard },
-  { href: "/dashboard/links", label: "Links", icon: Link2 },
+  { href: "/dashboard/links", label: "Conteúdo", icon: Link2 },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/profile", label: "Perfil", icon: User },
   { href: "/dashboard/theme", label: "Tema", icon: Palette },
 ] as const;

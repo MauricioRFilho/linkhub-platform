@@ -1,61 +1,73 @@
-# LinkHub — contexto, princípios e decisões de produto
+# LinkHub — Contexto, Princípios e Decisões de Produto
 
-**Status:** documento vivo de produto
-**Criado:** 2 de outubro de 2026
+**Status:** Documento vivo de produto  
+**Última Atualização:** 7 de outubro de 2026  
+**Responsável Técnico:** Jarvis (Assistente de Engenharia Sênior) & Mauricio Filho  
 
-Este documento registra a intenção de produto e as decisões acordadas para o LinkHub. Consulte-o antes de definir novas funcionalidades ou alterar o rumo do produto. Ele orienta decisões de produto; não substitui instruções técnicas do repositório. Diferencie sempre o que foi **decidido**, o que é uma **premissa de trabalho** e o que permanece **em aberto**.
+Este documento registra a intenção de produto e as decisões acordadas para o LinkHub. Consulte-o antes de definir novas funcionalidades ou alterar o rumo da plataforma. Diferencie sempre o que foi **decidido**, o que é uma **premissa de trabalho** e o que permanece **em aberto**.
 
-## Visão
+---
 
-Criar uma página pública que organize a árvore de links de uma pessoa ou empresa e também possa funcionar como portfólio ou apresentação profissional. O LinkHub parte de uma categoria conhecida, mas deve permitir mais personalização e usos do que uma lista simples de links.
+## 🎯 1. Visão do Produto
 
-A experiência deve atender desde criadores independentes até empresas pequenas e grandes, com uma página que ajude cada usuário a apresentar sua identidade, atividade, trabalho, produtos ou serviços.
+O **LinkHub** é uma plataforma que vai além de uma árvore estática de links. Ela funciona como o ponto focal digital de criadores independentes, afiliados, profissionais e empresas, permitindo construir **páginas de alta conversão, portfólios e apresentações profissionais de forma 100% dinâmica e autônoma**, sem necessidade de código ou deploys adicionais.
 
-## Para quem
+O criador deve ter liberdade para recomendar produtos com cupons promocionais em períodos específicos (ex: "oferta válida só esta semana"), engajar visitantes em suas comunidades (WhatsApp, Discord, Telegram), exibir vídeos e divulgar seus serviços com métricas claras de desempenho.
 
-- **Criadores e profissionais independentes:** reunir canais, projetos, trabalhos e formas de contato em uma página própria.
-- **Pequenas empresas:** apresentar marca, serviços, produtos e canais de atendimento em um lugar fácil de compartilhar.
-- **Empresas de maior porte:** usar a página como apresentação institucional ou porta de entrada digital. Requisitos corporativos como equipes, várias páginas e permissões ainda precisam ser definidos.
+---
 
-## Princípios acordados
+## 👥 2. Públicos-Alvo
 
-1. **Acesso público gratuito.** Visitar uma página publicada não exige pagamento.
-2. **Começar grátis para quem cria.** Criadores podem criar, personalizar e publicar sua página sem custo. O que constitui a oferta gratuita para empresas e eventuais planos futuros ainda será decidido.
-3. **Personalização sem código.** A direção do produto é permitir que usuários configurem conteúdo, identidade visual, ordem e seções sem programar. O grau de liberdade de layout e seus limites serão definidos por etapas.
-4. **Uma base para pessoas e empresas.** Começar com o mesmo modelo de perfil público, sem separar o produto em experiências pessoais e empresariais. Funcionalidades específicas de organizações dependem de decisão futura.
-5. **Árvore e apresentação juntas.** A página deve organizar links e, quando necessário, comunicar trabalho, marca, produtos ou serviços como um portfólio ou apresentação.
+- **Criadores de Conteúdo & Afiliados:** Recomendar produtos, cupons exclusivos com cópia em 1 clique, vídeos recentes e atrair membros para comunidades exclusivas.
+- **Profissionais Independentes:** Reunir portfólio, projetos em destaque, agendamento de reuniões e canais de contato direto.
+- **Pequenas e Médias Empresas:** Apresentar a marca, serviços, canais de atendimento e produtos em um link unificado e elegante para a bio das redes sociais.
+- **Empresas de Maior Porte:** Portal institucional de entrada com múltiplos canais e departamentos (recursos multi-equipe planejados para etapas futuras).
 
-## Decisões e premissas
+---
+
+## ⚖️ 3. Princípios Inegociáveis
+
+1. **Acesso Público Gratuito:** Qualquer visitante pode acessar e interagir com as páginas públicas sem fricção ou login.
+2. **Personalização Sem Código:** Todo o conteúdo (blocos, painéis, layouts, cores de destaque, fotos e dados) é gerenciado pelo próprio usuário no painel administrativo.
+3. **Privacidade e Conformidade (LGPD-Friendly):** Métricas de cliques e conversão são coletadas de forma estritamente anônima (sem cookies de terceiros, sem fingerprinting, sem persistência de endereços IP).
+4. **Segurança por Padrão (Zero Trust):** Políticas rigorosas de Row-Level Security (RLS) garantem que dados ocultos ou agendados para o futuro jamais vazem pela API pública.
+5. **Performance e Resiliência:** Zero carregamento bloqueante de recursos externos (ex: iframes de vídeo utilizam facades leves e só carregam sob demanda).
+
+---
+
+## 📊 4. Matriz de Decisões e Premissas
 
 | Tema | Estado | Decisão |
-| --- | --- | --- |
-| Proposta | Decidido | Página personalizável de links que também sirva como portfólio ou apresentação. |
-| Público | Decidido | Criadores, profissionais e empresas de diferentes portes. |
-| Visita pública | Decidido | Páginas publicadas devem ser gratuitas para visitantes. |
-| Criação por criadores | Decidido | Criar, personalizar e publicar uma página básica será gratuito. |
-| Personalização | Direção acordada | Sem código, incluindo identidade visual, conteúdo, ordem e seções; o alcance do editor ainda será refinado. |
-| Pessoas e empresas | Premissa inicial | Usar a mesma base de perfil; necessidades de espaços corporativos ficam para decisão futura. |
-| Monetização | Em aberto | Anúncios, patrocínios, planos e outras fontes não foram aprovados como modelo de negócio. |
-| Grande porte | Em aberto | A intenção é atender empresas grandes, mas recursos de equipe, múltiplos perfis, permissões e requisitos corporativos ainda não estão definidos. |
+| :--- | :--- | :--- |
+| **Proposta de Valor** | Decidido | Página dinâmica de links, afiliados, portfólio e apresentação com múltiplos formatos de bloco. |
+| **Arquitetura de Blocos** | Decidido | Modelo unificado baseado na tabela `sections` com `parent_id` (painéis) e `config` tipado via JSONB. |
+| **Layouts de Painel** | Decidido | Suporte nativo aos formatos: Spotlight (destaque com brilho), Grid (grade 2 colunas), Carousel (deslizável com scroll-snap) e List (vertical). |
+| **Agendamento** | Decidido | Publicação (`starts_at`) e expiração (`ends_at`) automáticas, com atalho de 1 clique "Válido até o fim desta semana". |
+| **Modelos Prontos (Presets)** | Decidido | Presets de 1 clique para Afiliados (Achado da semana), Criadores de Conteúdo e Empresas. |
+| **Analytics** | Decidido | Rastreamento anônimo assíncrono via `navigator.sendBeacon` e RPC restrita `track_click`. |
+| **Formatação de Texto** | Decidido | Markdown seguro e sanitizado, sem injeção direta de HTML cru. |
+| **Monetização da Plataforma** | Em aberto | Planos Pro/Enterprise, taxas sobre vendas ou temas premium permanecem para definição posterior. |
+| **Domínios Próprios** | Em aberto | Mapeamento de CNAME customizado por perfil planejado para fase posterior. |
+| **Workspaces Multi-Membro** | Em aberto | Colaboração em equipe e permissões corporativas ficam para versão futura. |
 
-## Estado descrito no repositório
+---
 
-Estas observações registram documentação e estruturas existentes; não são promessas de produto nem substituem validação funcional.
+## 📜 5. Histórico e Registro de Decisões
 
-- O README descreve autenticação, um perfil por usuário, links e seções, redes sociais, temas e metadados.
-- O README menciona Google AdSense e inclui um componente de anúncio com configuração por variáveis de ambiente. Isso não decide a política de anúncios nem confirma receita ativa.
-- Domínios próprios aparecem na documentação, mas o próprio README informa que o roteamento pelo domínio ainda precisa ser implementado. O suporte e suas regras permanecem em aberto.
-- A migration inicial representa o modelo de perfil individual. Ela não define espaços de organização, colaboração em equipe ou múltiplos perfis por empresa.
+- **2026-10-02 — Fundação da Plataforma:**
+  - Definição do escopo inicial: Next.js App Router, Supabase Auth (Magic Link), temas clássicos e perfil único por usuário.
+- **2026-10-07 — Plataforma 100% Dinâmica, Presets e Analytics:**
+  - Evolução da estrutura de `sections` para comportar múltiplos tipos de blocos (`link`, `product`, `coupon`, `community`, `video`, `text`, `header`, `panel`).
+  - Suporte a agrupadores (Painéis) com layouts variados e contagem regressiva para promoções.
+  - Implementação de presets prontos por nicho para onboarding instantâneo.
+  - Correção de segurança na política RLS para impedir vazamento de blocos agendados antes da data de lançamento.
+  - Adição de infraestrutura de analytics anônimo com painel visual de conversão.
 
-## Questões para decisões futuras
+---
 
-- Qual é o conjunto mínimo de opções de personalização da primeira versão e até onde vai a liberdade de layout?
-- A oferta gratuita para empresas será igual à de criadores? Haverá limites ou recursos pagos?
-- Qual modelo de receita, se algum, preserva uma boa experiência nas páginas públicas?
-- Como uma empresa deve administrar uma ou várias páginas? Quando entram membros, funções e permissões?
-- Quais recursos e garantias são necessários para atender empresas de grande porte?
-- Domínios próprios serão oferecidos? Para quais perfis, com qual processo de configuração e quais regras?
+## 🔮 6. Próximos Passos (Backlog Estratégico)
 
-## Registro de decisões
-
-- **2026-10-02 — Direção inicial:** registrar a intenção de atender criadores e empresas com páginas gratuitas para visitantes, gratuitas para criação básica por criadores, e personalizáveis sem código. Começar com uma base compartilhada de perfis; deixar monetização e recursos organizacionais em aberto.
+1. **Reordenação Drag-and-Drop:** Adicionar biblioteca visual para arrastar blocos entre painéis no dashboard.
+2. **Upload Direto de Mídia:** Permitir upload de imagens de capa e miniaturas diretamente para o bucket do Supabase Storage.
+3. **Domínios Customizados:** Roteamento via middleware de domínios personalizados (`links.meusite.com.br`).
+4. **Relatórios Semanais Automatizados:** Notificação por e-mail com resumo semanal de cliques e cupons mais copiados.

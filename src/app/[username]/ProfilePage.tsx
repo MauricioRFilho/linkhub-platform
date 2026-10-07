@@ -1,21 +1,20 @@
 "use client";
 
 import type { Profile, Social, Theme, Section } from "@/types/database";
+import type { WithChildren } from "@/lib/blocks/tree";
 import Avatar from "@/components/profile/Avatar";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import SocialBar from "@/components/profile/SocialBar";
-import LinkItem from "@/components/profile/LinkItem";
-import ProductItem from "@/components/profile/ProductItem";
-import SectionHeader from "@/components/profile/SectionHeader";
 import Footer from "@/components/profile/Footer";
+import BlockRenderer from "@/components/blocks/BlockRenderer";
 import type { CSSProperties } from "react";
-import { isSafeProfileLink } from "@/lib/utils/public-url";
 
 interface ProfilePageProps {
   profile: Profile;
   socials: Social[];
   theme: Theme;
-  sections: Section[];
+  /** Top-level blocks; panels carry their children. */
+  sections: WithChildren<Section>[];
 }
 
 /**
@@ -29,49 +28,6 @@ export default function ProfilePage({
   sections,
 }: ProfilePageProps) {
   const accentColor = theme.accent_color;
-
-  function renderSection(section: Section, index: number) {
-    switch (section.type) {
-      case "link":
-        if (!section.url || !isSafeProfileLink(section.url, true)) return null;
-        return (
-          <LinkItem
-            key={section.id}
-            title={section.title}
-            subtitle={section.subtitle}
-            url={section.url!}
-            emoji={section.emoji}
-            thumbnail={section.thumbnail_url}
-            index={index}
-            accentColor={accentColor}
-          />
-        );
-      case "product":
-        if (!section.url || !isSafeProfileLink(section.url)) return null;
-        return (
-          <ProductItem
-            key={section.id}
-            title={section.title}
-            subtitle={section.subtitle}
-            url={section.url!}
-            store={section.store || "Destaque"}
-            thumbnail={section.thumbnail_url}
-            index={index}
-            accentColor={accentColor}
-          />
-        );
-      case "header":
-        return (
-          <SectionHeader
-            key={section.id}
-            title={section.title}
-            index={index}
-          />
-        );
-      default:
-        return null;
-    }
-  }
 
   const accentStyle = { "--accent": accentColor } as CSSProperties;
 
@@ -93,7 +49,9 @@ export default function ProfilePage({
       <SocialBar socials={socials} accentColor={accentColor} />
 
       <div className="w-full max-w-[480px] mt-8 flex flex-col gap-2.5">
-        {sections.map((section, i) => renderSection(section, i))}
+        {sections.map((section, i) => (
+          <BlockRenderer key={section.id} block={section} index={i} accentColor={accentColor} />
+        ))}
       </div>
 
       <Footer name={profile.display_name} />

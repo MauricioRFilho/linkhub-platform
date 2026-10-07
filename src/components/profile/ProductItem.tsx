@@ -13,6 +13,11 @@ interface ProductItemProps {
   thumbnail: string | null;
   index: number;
   accentColor: string;
+  price?: string;
+  oldPrice?: string;
+  badge?: string;
+  /** Analytics hook — fired before the browser follows the link. */
+  onClick?: () => void;
 }
 
 /** Store badge class mapping */
@@ -31,6 +36,10 @@ export default function ProductItem({
   thumbnail,
   index,
   accentColor,
+  price,
+  oldPrice,
+  badge,
+  onClick,
 }: ProductItemProps) {
   const storeClass = STORE_CLASS[store] || "";
   const imageSource = safeImageSource(thumbnail);
@@ -38,6 +47,7 @@ export default function ProductItem({
   return (
     <motion.a
       href={url}
+      onClick={onClick}
       target="_blank"
       rel="noopener noreferrer"
       initial={{ opacity: 0, y: 12 }}
@@ -79,7 +89,19 @@ export default function ProductItem({
             {subtitle}
           </span>
         )}
+        {price && (
+          <span className="flex items-baseline gap-2 mt-1">
+            <span className="text-sm font-bold text-accent">{price}</span>
+            {oldPrice && <span className="text-xs text-text-muted line-through">{oldPrice}</span>}
+          </span>
+        )}
       </div>
+
+      {badge && (
+        <span className="absolute -top-2 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent text-black shadow">
+          {badge}
+        </span>
+      )}
 
       {/* Arrow */}
       <ExternalLink

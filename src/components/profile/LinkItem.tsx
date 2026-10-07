@@ -13,6 +13,8 @@ interface LinkItemProps {
   thumbnail: string | null;
   index: number;
   accentColor: string;
+  /** Analytics hook — fired before the browser follows the link. */
+  onClick?: () => void;
 }
 
 /** Generic link card with optional emoji/thumbnail and subtitle */
@@ -24,6 +26,7 @@ export default function LinkItem({
   thumbnail,
   index,
   accentColor,
+  onClick,
 }: LinkItemProps) {
   const isExternal = /^(https?:|mailto:|tel:)/i.test(url);
   const imageSource = safeImageSource(thumbnail);
@@ -31,6 +34,7 @@ export default function LinkItem({
   return (
     <motion.a
       href={url}
+      onClick={onClick}
       target={isExternal ? "_blank" : "_self"}
       rel={isExternal ? "noopener noreferrer" : undefined}
       initial={{ opacity: 0, y: 12 }}

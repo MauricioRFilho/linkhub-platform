@@ -10,6 +10,11 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+/** Block types stored in `sections.type`. @see supabase/migrations/20261007120000_dynamic_blocks.sql */
+export type SectionTypeValue =
+  | "link" | "header" | "product" | "panel" | "coupon" | "community" | "video" | "text";
+export type PanelLayoutValue = "list" | "grid" | "carousel" | "spotlight";
+
 export type Database = {
   public: {
     Tables: {
@@ -96,13 +101,18 @@ export type Database = {
         Row: {
           id: string;
           profile_id: string;
-          type: "link" | "header" | "product";
+          parent_id: string | null;
+          type: SectionTypeValue;
           title: string;
           subtitle: string | null;
           url: string | null;
           emoji: string | null;
           thumbnail_url: string | null;
           store: string | null;
+          layout: PanelLayoutValue | null;
+          config: Json;
+          starts_at: string | null;
+          ends_at: string | null;
           sort_order: number;
           active: boolean;
           created_at: string;
@@ -110,28 +120,52 @@ export type Database = {
         Insert: {
           id?: string;
           profile_id: string;
-          type: "link" | "header" | "product";
+          parent_id?: string | null;
+          type: SectionTypeValue;
           title: string;
           subtitle?: string | null;
           url?: string | null;
           emoji?: string | null;
           thumbnail_url?: string | null;
           store?: string | null;
+          layout?: PanelLayoutValue | null;
+          config?: Json;
+          starts_at?: string | null;
+          ends_at?: string | null;
           sort_order?: number;
           active?: boolean;
           created_at?: string;
         };
         Update: {
-          type?: "link" | "header" | "product";
+          parent_id?: string | null;
+          type?: SectionTypeValue;
           title?: string;
           subtitle?: string | null;
           url?: string | null;
           emoji?: string | null;
           thumbnail_url?: string | null;
           store?: string | null;
+          layout?: PanelLayoutValue | null;
+          config?: Json;
+          starts_at?: string | null;
+          ends_at?: string | null;
           sort_order?: number;
           active?: boolean;
         };
+        Relationships: [];
+      };
+      section_clicks: {
+        Row: {
+          id: number;
+          section_id: string;
+          profile_id: string;
+          kind: "click" | "copy";
+          referrer_host: string | null;
+          device: "mobile" | "desktop" | "tablet" | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       meta: {
@@ -172,8 +206,24 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: {
+      section_click_stats: {
+        Row: {
+          section_id: string;
+          profile_id: string;
+          kind: "click" | "copy";
+          total: number;
+          last_7d: number;
+        };
+        Relationships: [];
+      };
+    };
+    Functions: {
+      track_click: {
+        Args: { p_section: string; p_kind?: string; p_referrer?: string | null; p_device?: string | null };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
@@ -187,5 +237,7 @@ export type Section = Database["public"]["Tables"]["sections"]["Row"];
 export type Meta = Database["public"]["Tables"]["meta"]["Row"];
 
 export type SectionType = Section["type"];
+export type PanelLayout = PanelLayoutValue;
+export type ClickStat = Database["public"]["Views"]["section_click_stats"]["Row"];
 export type ThemeStyle = Theme["style"];
 export type ThemeTemplate = Theme["template"];

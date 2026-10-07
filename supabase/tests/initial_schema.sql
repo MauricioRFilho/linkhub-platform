@@ -50,7 +50,7 @@ SELECT pg_temp.assert_true((SELECT count(*)=30 FROM public.reserved_usernames),'
 SELECT pg_temp.expect_error($$INSERT INTO public.sections(profile_id,type,title) VALUES('11111111-1111-1111-1111-111111111111','link','Anonymous')$$,'42501');
 RESET ROLE;
 SELECT pg_temp.assert_true((SELECT public AND file_size_limit=2097152 FROM storage.buckets WHERE id='avatars'),'avatar bucket');
-SELECT pg_temp.assert_true((SELECT count(*)=6 FROM pg_tables WHERE schemaname='public' AND rowsecurity),'all tables RLS');
+SELECT pg_temp.assert_true((SELECT count(*)=7 FROM pg_tables WHERE schemaname='public' AND rowsecurity),'all tables RLS');
 DELETE FROM auth.users WHERE id='11111111-1111-1111-1111-111111111111';
 SELECT pg_temp.assert_true(NOT EXISTS(SELECT FROM public.profiles WHERE id='11111111-1111-1111-1111-111111111111')
  AND NOT EXISTS(SELECT FROM public.themes WHERE profile_id='11111111-1111-1111-1111-111111111111')

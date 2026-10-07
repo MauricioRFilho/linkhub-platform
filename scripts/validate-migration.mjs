@@ -24,11 +24,13 @@ try {
     "scripts/fixtures/supabase-platform.sql",
     "supabase/migrations/20261002120000_initial_schema.sql",
     "supabase/migrations/20261002130000_add_editorial_theme.sql",
+    "supabase/migrations/20261007120000_dynamic_blocks.sql",
     "supabase/tests/initial_schema.sql",
+    "supabase/tests/dynamic_blocks.sql",
   ]) {
     docker(["exec", "-i", name, "psql", "-U", "postgres", "-v", "ON_ERROR_STOP=1"], readFileSync(path, "utf8"));
   }
-  console.log("PASS: migration, RLS, grants, onboarding defaults, reserved names, avatars and cascades.");
+  console.log("PASS: migration, RLS, grants, onboarding defaults, reserved names, avatars, cascades, dynamic blocks, scheduling and analytics.");
 } finally {
   if (started) docker(["stop", name]);
 }

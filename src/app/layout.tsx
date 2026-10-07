@@ -10,7 +10,7 @@ const inter = Inter({
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
   ? `https://${process.env.NEXT_PUBLIC_BASE_URL}`
-  : "https://links.codecadence.com.br";
+  : "https://links.cadencecode.com.br";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description:
     "Crie uma página pública para reunir links, apresentar seu portfólio ou divulgar sua empresa, com identidade visual personalizável.",
   keywords: ["links", "link in bio", "portfólio", "codecadence", "linkhub"],
-  authors: [{ name: "Code Cadence", url: "https://codecadence.com.br" }],
+  authors: [{ name: "Cadence Code", url: "https://cadencecode.com.br" }],
   openGraph: {
     type: "website",
     locale: "pt_BR",

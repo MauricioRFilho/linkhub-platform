@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:unit": "node --experimental-strip-types --test --test-isolation=none src/lib/utils/auth-redirect.test.ts src/lib/utils/public-url.test.ts src/lib/utils/username.test.ts",
+    "test:unit": "node --experimental-strip-types --test --test-isolation=none src/lib/utils/auth-redirect.test.ts src/lib/utils/public-url.test.ts src/lib/utils/username.test.ts src/lib/blocks/blocks.test.ts",
     "test:db": "node scripts/validate-migration.mjs",
-    "test": "npm run test:unit && npm run test:db"
+    "test": "npm run test:unit && npm run test:db",
+    "cf": "node scripts/cloudflare.mjs",
+    "vercel": "node scripts/vercel.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
