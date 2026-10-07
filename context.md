@@ -62,12 +62,18 @@ O criador deve ter liberdade para recomendar produtos com cupons promocionais em
   - Implementação de presets prontos por nicho para onboarding instantâneo.
   - Correção de segurança na política RLS para impedir vazamento de blocos agendados antes da data de lançamento.
   - Adição de infraestrutura de analytics anônimo com painel visual de conversão.
+- **2026-10-07 — Go-Live em Produção (`links.cadencecode.com.br`):**
+  - Configuração do subdomínio `links.cadencecode.com.br` no DNS da Cloudflare (`cname.vercel-dns.com` em DNS Only) via `scripts/cloudflare.mjs`.
+  - Provisionamento automático de projeto e associação de domínio na Vercel via REST API (`scripts/vercel.mjs`).
+  - Deploy em produção concluído com status `READY` e SSL ativo.
+  - Ponto pendente de Auth documentado em [docs/auth-setup.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/auth-setup.md): habilitar provider Google no Supabase ou utilizar Magic Link por e-mail com as Redirect URLs configuradas.
 
 ---
 
 ## 🔮 6. Próximos Passos (Backlog Estratégico)
 
-1. **Reordenação Drag-and-Drop:** Adicionar biblioteca visual para arrastar blocos entre painéis no dashboard.
-2. **Upload Direto de Mídia:** Permitir upload de imagens de capa e miniaturas diretamente para o bucket do Supabase Storage.
-3. **Domínios Customizados:** Roteamento via middleware de domínios personalizados (`links.meusite.com.br`).
+1. **Configuração de Auth Supabase:** Concluir ativação do Google OAuth ou testar fluxo com Magic Link em produção.
+2. **Reordenação Drag-and-Drop:** Adicionar biblioteca visual para arrastar blocos entre painéis no dashboard.
+3. **Upload Direto de Mídia:** Permitir upload de imagens de capa e miniaturas diretamente para o bucket do Supabase Storage.
 4. **Relatórios Semanais Automatizados:** Notificação por e-mail com resumo semanal de cliques e cupons mais copiados.
+

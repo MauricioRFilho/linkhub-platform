@@ -31,8 +31,20 @@ Este documento reúne links essenciais para desenvolvimento, documentação ofic
 - [context.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/context.md) — Contexto de negócio, visão de produto e histórico de decisões.
 - [docs/architecture.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/architecture.md) — Arquitetura de software, diagramas de fluxo e padrão de blocos.
 - [docs/contracts.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/contracts.md) — Contratos TypeScript, schemas SQL e contratos de API.
+- [docs/auth-setup.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/auth-setup.md) — Guia de configuração de autenticação (OAuth, Magic Link e URLs do Supabase).
 - [docs/cloudflare.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/cloudflare.md) — Guia de automação de DNS e Cloudflare CLI.
+- [docs/vercel.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/vercel.md) — Guia de automação e integração com a Vercel.
 - [supabase/README.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/supabase/README.md) — Guia de migrations, seeds e configuração do Supabase local e remoto.
+
+---
+
+## ⚡ Painéis e Dashboards do Projeto
+
+- **Supabase Auth URL Config:** [supabase.com/dashboard/project/dnzmcgeuhblxrlpvbcmz/auth/url-configuration](https://supabase.com/dashboard/project/dnzmcgeuhblxrlpvbcmz/auth/url-configuration)
+- **Supabase Auth Providers (Google):** [supabase.com/dashboard/project/dnzmcgeuhblxrlpvbcmz/auth/providers](https://supabase.com/dashboard/project/dnzmcgeuhblxrlpvbcmz/auth/providers)
+- **Supabase SQL Editor:** [supabase.com/dashboard/project/dnzmcgeuhblxrlpvbcmz/sql](https://supabase.com/dashboard/project/dnzmcgeuhblxrlpvbcmz/sql)
+- **Vercel Project Dashboard:** [vercel.com/mauriciootks-projects/linkhub-platform](https://vercel.com/mauriciootks-projects/linkhub-platform)
+- **Google Cloud Credentials:** [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
 
 ---
 
