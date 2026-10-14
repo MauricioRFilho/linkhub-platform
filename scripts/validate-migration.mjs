@@ -25,12 +25,14 @@ try {
     "supabase/migrations/20261002120000_initial_schema.sql",
     "supabase/migrations/20261002130000_add_editorial_theme.sql",
     "supabase/migrations/20261007120000_dynamic_blocks.sql",
+    "supabase/migrations/20261014120000_custom_domains.sql",
     "supabase/tests/initial_schema.sql",
     "supabase/tests/dynamic_blocks.sql",
+    "supabase/tests/custom_domains.sql",
   ]) {
     docker(["exec", "-i", name, "psql", "-U", "postgres", "-v", "ON_ERROR_STOP=1"], readFileSync(path, "utf8"));
   }
-  console.log("PASS: migration, RLS, grants, onboarding defaults, reserved names, avatars, cascades, dynamic blocks, scheduling and analytics.");
+  console.log("PASS: migration, RLS, grants, onboarding defaults, reserved names, avatars, cascades, dynamic blocks, scheduling, analytics and custom domains.");
 } finally {
   if (started) docker(["stop", name]);
 }

@@ -24,8 +24,9 @@ flowchart TD
         Storage["Storage (Avatars Bucket)"]
     end
 
-    Visitante -->|Acessa perfil público| Middleware
-    Middleware -->|Rewrite /@user -> /user| PublicApp
+    Visitante -->|Acessa perfil (links.cadencecode.com.br/@user ou seudominio.com.br)| Middleware
+    Middleware -->|Host Próprio -> RPC resolve_custom_domain| PublicApp
+    Middleware -->|Host Plataforma: Rewrite /@user -> /user| PublicApp
     PublicApp -->|SSR Query (RLS restrito)| PostgreSQL
     PublicApp -->|sendBeacon (cliques / cupons)| AnalyticsAPI
     AnalyticsAPI -->|RPC track_click| PostgreSQL
@@ -47,14 +48,16 @@ flowchart TD
 4. A mutação é enviada via Supabase Client (`useLinks.ts`) e protegida por **Row-Level Security (RLS)** — o PostgreSQL valida `auth.uid() = profile_id`.
 5. Triggers de banco (`sections_validate_parent`) garantem integridade referencial: painéis só aninham até 1 nível e apenas para o mesmo proprietário.
 
-### B. Renderização Pública (SSR Dinâmico)
-1. O visitante acessa `https://links.codecadence.com.br/@usuario`.
-2. O middleware `proxy.ts` reescreve a requisição para a rota dinâmica `src/app/[username]/page.tsx`.
-3. O Server Component busca os dados no Supabase usando o cliente de servidor (`src/lib/supabase/server.ts`).
-4. **Filtro de Segurança em 2 Níveis:**
+### B. Renderização Pública (SSR Dinâmico & Domínios Próprios)
+1. O visitante acessa a plataforma:
+   - **Via Domínio da Plataforma (`links.cadencecode.com.br/@usuario`):** O middleware `proxy.ts` reescreve a requisição para a rota dinâmica `src/app/[username]/page.tsx`.
+   - **Via Domínio Próprio (`seudominio.com.br`):** O `proxy.ts` detecta um Host que não pertence à plataforma, consulta o cache em memória (60s) ou invoca a RPC `resolve_custom_domain(p_hostname)`. Se ativo, reescreve a raiz `/` para `/{username}`. Tentativas de acessar outras rotas retornam 404, e rotas de dashboard/login são redirecionadas com 308 para a plataforma.
+2. O Server Component busca os dados no Supabase usando o cliente de servidor (`src/lib/supabase/server.ts`).
+3. **Filtro de Segurança em 2 Níveis:**
    - **Nível 1 (PostgreSQL RLS):** A política `Public sees published sections` retorna apenas registros com `active = true` e cuja janela de agendamento (`starts_at` e `ends_at`) seja válida em relação a `now()`.
    - **Nível 2 (Aplicação):** A função `buildTree()` monta a hierarquia `panel → children`. Se um painel pai estiver oculto ou inativo, seus filhos são automaticamente descartados da renderização.
-5. O componente de cliente `ProfilePage.tsx` renderiza a árvore visual aplicando o tema selecionado (`classic`, `minimal`, `bold`, `neon` ou `editorial`) e as variáveis CSS de cor de destaque (`--accent`).
+4. O componente de cliente `ProfilePage.tsx` renderiza a árvore visual aplicando o tema selecionado (`classic`, `minimal`, `bold`, `neon` ou `editorial`) e as variáveis CSS de cor de destaque (`--accent`).
+5. A metadata canônica (`generateMetadata`) aponta para o domínio próprio caso esteja ativo, evitando conteúdo duplicado no Google.
 
 ### C. Coleta de Métricas (Analytics Assíncrono)
 1. Quando o visitante clica em um link de produto ou copia um código de cupom:

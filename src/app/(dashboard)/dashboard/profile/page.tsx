@@ -5,11 +5,13 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Check, User, Link as LinkIcon, Sparkles, Upload } from "lucide-react";
 import { normalizeUsername, validateUsername } from "@/lib/utils/username";
+import { handleToUrl, isHandlePlatform, urlToHandle } from "@/lib/socials/handles";
 
 const SUPPORTED_SOCIALS = [
+  { platform: "instagram", label: "Instagram", placeholder: "seu.usuario ou @seu.usuario", isHandle: true },
+  { platform: "tiktok", label: "TikTok", placeholder: "seu.usuario ou @seu.usuario", isHandle: true },
   { platform: "github", label: "GitHub", placeholder: "https://github.com/..." },
   { platform: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/..." },
-  { platform: "instagram", label: "Instagram", placeholder: "https://instagram.com/..." },
   { platform: "twitter", label: "Twitter / X", placeholder: "https://x.com/..." },
   { platform: "youtube", label: "YouTube", placeholder: "https://youtube.com/@..." },
   { platform: "strava", label: "Strava", placeholder: "https://strava.com/athletes/..." },
@@ -130,8 +132,20 @@ export default function ProfileSettingsPage() {
       profileSaved = true;
 
       const rows = Object.entries(socialMap)
-        .filter(([, url]) => url.trim().length > 0)
-        .map(([platform, url], index) => ({ profile_id: authData.user.id, platform, url: url.trim(), sort_order: index }));
+        .filter(([, rawVal]) => rawVal.trim().length > 0)
+        .map(([platform, rawVal], index) => {
+          let url = rawVal.trim();
+          if (isHandlePlatform(platform)) {
+            const canonicalUrl = handleToUrl(platform, url);
+            if (canonicalUrl) url = canonicalUrl;
+          }
+          return {
+            profile_id: authData.user.id,
+            platform,
+            url,
+            sort_order: index,
+          };
+        });
       if (rows.length > 0) {
         const { error: upsertError } = await supabase
           .from("socials")
@@ -242,15 +256,70 @@ export default function ProfileSettingsPage() {
         </div>
 
         <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800 space-y-4">
-          <h2 className="text-sm font-semibold text-white flex items-center gap-2"><LinkIcon className="w-4 h-4 text-emerald-400" />Redes Sociais</h2>
-          <p className="text-xs text-zinc-400">Preencha apenas as redes que deseja exibir na página pública.</p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <LinkIcon className="w-4 h-4 text-emerald-400" />
+              Redes Sociais
+            </h2>
+          </div>
+          <p className="text-xs text-zinc-400">
+            No Instagram e TikTok, você pode digitar apenas o seu <strong className="text-zinc-300">@usuario</strong>.
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {SUPPORTED_SOCIALS.map((social) => (
-              <div key={social.platform}>
-                <label htmlFor={`social-${social.platform}`} className="block text-xs text-zinc-400 mb-1">{social.label}</label>
-                <input id={`social-${social.platform}`} type="url" value={socialMap[social.platform] || ""} onChange={(e) => setSocialDraft((previous) => ({ ...(previous ?? persistedSocials), [social.platform]: e.target.value }))} placeholder={social.placeholder} className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:outline-none focus:border-emerald-500" />
-              </div>
-            ))}
+            {SUPPORTED_SOCIALS.map((social) => {
+              const rawValue = socialMap[social.platform] || "";
+              const displayValue =
+                social.isHandle && isHandlePlatform(social.platform)
+                  ? (urlToHandle(social.platform, rawValue) || rawValue.replace(/^@/, ""))
+                  : rawValue;
+
+              return (
+                <div key={social.platform} className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor={`social-${social.platform}`} className="block text-xs text-zinc-400">
+                      {social.label}
+                    </label>
+                    {social.isHandle && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const userHandle = normalizeUsername(username);
+                          setSocialDraft((previous) => ({
+                            ...(previous ?? persistedSocials),
+                            [social.platform]: userHandle,
+                          }));
+                        }}
+                        className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
+                      >
+                        Usar @{normalizeUsername(username) || "meu-usuario"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative flex items-center">
+                    {social.isHandle && (
+                      <span className="absolute left-3 text-zinc-500 text-xs font-mono select-none">
+                        @
+                      </span>
+                    )}
+                    <input
+                      id={`social-${social.platform}`}
+                      type={social.isHandle ? "text" : "url"}
+                      value={displayValue}
+                      onChange={(e) =>
+                        setSocialDraft((previous) => ({
+                          ...(previous ?? persistedSocials),
+                          [social.platform]: e.target.value,
+                        }))
+                      }
+                      placeholder={social.placeholder}
+                      className={`w-full py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:outline-none focus:border-emerald-500 ${
+                        social.isHandle ? "pl-7 pr-3" : "px-3"
+                      }`}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -205,6 +205,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      custom_domains: {
+        Row: {
+          id: string;
+          profile_id: string;
+          hostname: string;
+          verification_token: string;
+          status: "pending" | "active" | "misconfigured";
+          verified_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          hostname: string;
+          verification_token?: string;
+          status?: "pending" | "active" | "misconfigured";
+          verified_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          hostname?: string;
+          status?: "pending" | "active" | "misconfigured";
+          verified_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       section_click_stats: {
@@ -223,6 +252,14 @@ export type Database = {
         Args: { p_section: string; p_kind?: string; p_referrer?: string | null; p_device?: string | null };
         Returns: undefined;
       };
+      resolve_custom_domain: {
+        Args: { p_hostname: string };
+        Returns: string | null;
+      };
+      profile_custom_domain: {
+        Args: { p_profile: string };
+        Returns: string | null;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
@@ -235,6 +272,8 @@ export type Social = Database["public"]["Tables"]["socials"]["Row"];
 export type Theme = Database["public"]["Tables"]["themes"]["Row"];
 export type Section = Database["public"]["Tables"]["sections"]["Row"];
 export type Meta = Database["public"]["Tables"]["meta"]["Row"];
+export type CustomDomain = Database["public"]["Tables"]["custom_domains"]["Row"];
+export type CustomDomainStatus = CustomDomain["status"];
 
 export type SectionType = Section["type"];
 export type PanelLayout = PanelLayoutValue;

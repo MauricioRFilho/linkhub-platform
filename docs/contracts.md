@@ -181,3 +181,56 @@ export interface Preset {
   }>;
 }
 ```
+
+---
+
+## 5. Contrato da Tabela `custom_domains`
+
+```sql
+CREATE TABLE public.custom_domains (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id UUID UNIQUE NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  hostname TEXT NOT NULL,
+  verification_token TEXT NOT NULL DEFAULT replace(gen_random_uuid()::text, '-', ''),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'misconfigured')),
+  verified_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+### RPCs Associadas
+- `resolve_custom_domain(p_hostname TEXT) RETURNS TEXT`: Resolve hostname (com ou sem `www`) para o username associado caso o domínio esteja `active`.
+- `profile_custom_domain(p_profile UUID) RETURNS TEXT`: Retorna o hostname customizado ativo de um perfil para montagem de URLs canônicas.
+
+---
+
+## 6. Contrato das APIs de Domínios (`/api/domains`)
+
+### A. Listar / Obter Status (`GET /api/domains`)
+- **Autenticação:** Sessão Supabase obrigatória.
+- **Resposta:**
+  ```json
+  {
+    "domain": {
+      "id": "...",
+      "hostname": "mauriciootk.com.br",
+      "status": "active",
+      "verification_token": "..."
+    },
+    "records": [
+      { "type": "TXT", "name": "_linkhub.mauriciootk.com.br", "value": "..." },
+      { "type": "A", "name": "@", "value": "76.76.21.21" },
+      { "type": "CNAME", "name": "www", "value": "cname.vercel-dns.com" }
+    ]
+  }
+  ```
+
+### B. Cadastrar / Alterar Domínio (`POST /api/domains`)
+- **Body:** `{ "hostname": "seunome.com.br" }`
+- **Validação:** Rejeita domínios da plataforma (`cadencecode.com.br`, `vercel.app`), formatos inválidos e subdomínio `www` no cadastro inicial.
+
+### C. Verificar Propriedade e Apontamento (`POST /api/domains/verify`)
+- Executa consulta DNS TXT `_linkhub.<hostname>`.
+- Registra domínio na Vercel (apex + redirect de www).
+- Atualiza status para `active` ou `misconfigured` via service role.

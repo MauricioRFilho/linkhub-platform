@@ -12,3 +12,16 @@ test("rejects reserved names and invalid formats", () => {
   assert.match(validateUsername("bad name") ?? "", /letras minúsculas/);
   assert.match(validateUsername("ab") ?? "", /pelo menos 3/);
 });
+
+test("accepts Instagram/TikTok style handles with dots and a leading @", () => {
+  assert.equal(normalizeUsername("@Mauricio.Otk"), "mauricio.otk");
+  assert.equal(validateUsername("mauricio.otk"), null);
+  assert.equal(validateUsername("mauricio_otk"), null);
+});
+
+test("rejects consecutive, leading or trailing dots and file-like names", () => {
+  assert.match(validateUsername("mauricio..otk") ?? "", /pontos/);
+  assert.match(validateUsername(".mauricio") ?? "", /pontos/);
+  assert.match(validateUsername("mauricio.") ?? "", /pontos/);
+  assert.match(validateUsername("robots.txt") ?? "", /não está disponível/);
+});

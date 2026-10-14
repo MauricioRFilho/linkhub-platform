@@ -47,7 +47,7 @@ O criador deve ter liberdade para recomendar produtos com cupons promocionais em
 | **Analytics** | Decidido | Rastreamento anônimo assíncrono via `navigator.sendBeacon` e RPC restrita `track_click`. |
 | **Formatação de Texto** | Decidido | Markdown seguro e sanitizado, sem injeção direta de HTML cru. |
 | **Monetização da Plataforma** | Em aberto | Planos Pro/Enterprise, taxas sobre vendas ou temas premium permanecem para definição posterior. |
-| **Domínios Próprios** | Em aberto | Mapeamento de CNAME customizado por perfil planejado para fase posterior. |
+| **Domínios Próprios** | Decidido | Mapeamento de domínio próprio por perfil via DNS TXT + Host proxy no Next.js com SSL automático via Vercel. |
 | **Workspaces Multi-Membro** | Em aberto | Colaboração em equipe e permissões corporativas ficam para versão futura. |
 
 ---
@@ -67,6 +67,12 @@ O criador deve ter liberdade para recomendar produtos com cupons promocionais em
   - Provisionamento automático de projeto e associação de domínio na Vercel via REST API (`scripts/vercel.mjs`).
   - Deploy em produção concluído com status `READY` e SSL ativo.
   - Ponto pendente de Auth documentado em [docs/auth-setup.md](file:///c:/Users/Mauricio.filho/Documents/GitHub/linkhub-platform/docs/auth-setup.md): habilitar provider Google no Supabase ou utilizar Magic Link por e-mail com as Redirect URLs configuradas.
+- **2026-10-14 — Domínios Próprios e Handles Sociais (@):**
+  - Implementação do suporte a domínios próprios por usuário (`custom_domains`) com proteção contra sequestro via validação de TXT `_linkhub`.
+  - Roteamento por Host no middleware `proxy.ts` com cache de 60s em memória e rewrite dinâmico para a página pública.
+  - Isolamento de escopo (apenas home é servida em domínios próprios; dashboard redireciona permanentemente para o domínio oficial).
+  - Suporte a @handle para Instagram e TikTok no painel de perfil, com preenchimento em 1 clique a partir do username da plataforma.
+  - Adaptação do validador de username para permitir pontos (`.`), espelhando handles sociais sem conflitar com arquivos estáticos.
 
 ---
 

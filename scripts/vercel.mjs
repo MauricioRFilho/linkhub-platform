@@ -232,7 +232,7 @@ async function checkDomain(domainName = defaultDomain, projectIdentifier = null)
     console.log(`Apex Domain: ${verifyRes.apexName || "cadencecode.com.br"}`);
     console.log("--------------------------------------------------------------------------------\n");
     return verifyRes;
-  } catch (err) {
+  } catch {
     // Try GET if POST verify isn't ready
     const domainInfo = await vercelFetch(`/v9/projects/${project.id}/domains/${encodeURIComponent(domainName)}`);
     console.log("\n--------------------------------------------------------------------------------");

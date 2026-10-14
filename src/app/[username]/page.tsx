@@ -26,7 +26,7 @@ async function getProfileData(username: string) {
 
   if (!profile) return null;
 
-  const [socialsRes, themeRes, sectionsRes, metaRes] = await Promise.all([
+  const [socialsRes, themeRes, sectionsRes, metaRes, domainRes] = await Promise.all([
     supabase
       .from("socials")
       .select("*")
@@ -48,6 +48,7 @@ async function getProfileData(username: string) {
       .select("*")
       .eq("profile_id", profile.id)
       .single(),
+    supabase.rpc("profile_custom_domain", { p_profile: profile.id }),
   ]);
 
   // RLS already hides unpublished blocks; filtering again keeps the page
@@ -60,6 +61,7 @@ async function getProfileData(username: string) {
     theme: themeRes.data!,
     sections: buildTree(published),
     meta: metaRes.data!,
+    customDomain: (domainRes.data as string | null) ?? null,
   };
 }
 
@@ -69,14 +71,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await getProfileData(username);
   if (!data) return { title: "Perfil não encontrado" };
 
-  const { profile, meta } = data;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "links.cadencecode.com.br";
+  const { profile, meta, customDomain } = data;
+  const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || "https://links.cadencecode.com.br";
+  const platformOrigin = rawAppUrl.startsWith("http") ? rawAppUrl : `https://${rawAppUrl}`;
+
+  const canonicalUrl = customDomain
+    ? `https://${customDomain}`
+    : `${platformOrigin}/@${profile.username}`;
 
   return {
-    metadataBase: new URL(`https://${baseUrl}`),
+    metadataBase: new URL(customDomain ? `https://${customDomain}` : platformOrigin),
     title: meta.title ?? `${profile.display_name} | Links`,
     description: meta.description ?? `Links de ${profile.display_name}`,
-    alternates: { canonical: `/@${profile.username}` },
+    alternates: { canonical: canonicalUrl },
     authors: [{ name: profile.display_name }],
     openGraph: {
       type: "profile",

@@ -1,7 +1,19 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
+import { hostFromHeader, isPlatformHost, parsePlatformHosts } from "@/lib/domains/hostname";
+import { handleCustomDomain } from "@/lib/domains/custom-domain-proxy";
+
+const platformHosts = parsePlatformHosts(process.env.PLATFORM_HOSTS);
 
 export async function proxy(request: NextRequest) {
+  const host = hostFromHeader(
+    request.headers.get("x-forwarded-host") || request.headers.get("host")
+  );
+
+  if (!isPlatformHost(host, platformHosts)) {
+    return await handleCustomDomain(request, host);
+  }
+
   return await updateSession(request);
 }
 
